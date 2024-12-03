@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_restful import Api
-from controllers.users import UserController, UsersController, UserSignUpController, UserLoginController, UserLogoutController
+from controllers.users import UserController, UsersController
+from controllers.authentication import SignUpController, LoginController, LogoutController
 from flask_jwt_extended import JWTManager
 from redis_config import jwt_redis_blocklist, ACCESS_EXPIRES
 
@@ -26,11 +27,11 @@ database.init_app(app)
 with app.app_context():
     database.create_all()
 
+api.add_resource(SignUpController, '/sign_up')
+api.add_resource(LoginController, '/login')
+api.add_resource(LogoutController, '/logout')
 api.add_resource(UsersController, '/users')
 api.add_resource(UserController, '/users/<int:user_id>')
-api.add_resource(UserSignUpController, '/sign_up')
-api.add_resource(UserLoginController, '/login')
-api.add_resource(UserLogoutController, '/logout')
 
 if __name__ == '__main__':
     app.run(debug=True)

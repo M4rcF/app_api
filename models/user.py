@@ -4,15 +4,26 @@ class User(database.Model):
   __tablename__ = 'users'
 
   id = database.Column(database.Integer, primary_key=True)
-  name = database.Column(database.String(20), unique=True)
-  password = database.Column(database.String(10))
+  email = database.Column(database.String(20), unique=True, nullable=False)
+  password = database.Column(database.String(10), nullable=False)
+  individual_id = database.Column(database.Integer, database.ForeignKey('individuals.id'))
+  is_admin =database.Column(database.Boolean, default=False)
 
-  def __init__(self, name, password):
-    self.name = name
+  individual = database.relationship('Individual', back_populates='user')
+
+  def __init__(self, email, password, is_admin, individual_id):
+    self.email = email
     self.password = password
+    self.is_admin = is_admin
+    self.individual_id = individual_id
   
   def to_json(self):
-    return { 'name': self.name }
+    return {
+      'id': self.id,
+      'email': self.email,
+      'is_admin': self.is_admin,
+      'individual': self.individual.to_json()
+    }
   
   @classmethod
   def get_all(cls):
@@ -27,8 +38,8 @@ class User(database.Model):
     return None
 
   @classmethod
-  def find_by_name(cls, user_name):
-    user = cls.query.filter_by(name = user_name).first()
+  def find_by_email(cls, user_email):
+    user = cls.query.filter_by(email = user_email).first()
     if user:
       return user
     
