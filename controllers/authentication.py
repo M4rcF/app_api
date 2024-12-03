@@ -24,7 +24,6 @@ def login_permitted_params():
   return login_args.parse_args()
 
 class SignUpController(Resource):
-
   def post(self):
     data = signup_permitted_params()
     individual = Individual(data['name'], data['cpf'], data['cellphone'])

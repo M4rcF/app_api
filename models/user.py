@@ -10,6 +10,8 @@ class User(database.Model):
   is_admin =database.Column(database.Boolean, default=False)
 
   individual = database.relationship('Individual', back_populates='user')
+  votes = database.relationship('Vote', back_populates='user')
+  polls = database.relationship('Poll', back_populates='user')
 
   def __init__(self, email, password, is_admin, individual_id):
     self.email = email

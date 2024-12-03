@@ -1,6 +1,8 @@
 from flask import Flask, jsonify
 from flask_restful import Api
-from controllers.users import UserController, UsersController
+from controllers.polls import PollsController
+from controllers.users import UsersController
+from controllers.votes import VotesController
 from controllers.authentication import SignUpController, LoginController, LogoutController
 from flask_jwt_extended import JWTManager
 from redis_config import jwt_redis_blocklist, ACCESS_EXPIRES
@@ -30,8 +32,9 @@ with app.app_context():
 api.add_resource(SignUpController, '/sign_up')
 api.add_resource(LoginController, '/login')
 api.add_resource(LogoutController, '/logout')
-api.add_resource(UsersController, '/users')
-api.add_resource(UserController, '/users/<int:user_id>')
+api.add_resource(UsersController, '/users', '/users/<int:user_id>')
+api.add_resource(PollsController, '/polls', '/polls/<int:poll_id>')
+api.add_resource(VotesController, '/polls/<int:poll_id>/poll_options/<int:poll_option_id>/votes', '/votes')
 
 if __name__ == '__main__':
     app.run(debug=True)
