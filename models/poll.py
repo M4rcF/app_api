@@ -37,9 +37,10 @@ class Poll(database.Model):
     database.session.add(self)
     database.session.commit()
 
-  def update(self, title, description):
+  def update(self, title, description, expires_at):
     self.title = title
     self.description = description
+    self.expires_at = expires_at
 
     database.session.add(self)
     database.session.commit()
