@@ -22,6 +22,14 @@ class Individual(database.Model):
       'cpf': self.cpf,
       'cellphone': self.cellphone
     }
+  
+  def update(self, name, cpf, cellphone):
+    self.name = name
+    self.cpf = cpf
+    self.cellphone = cellphone
+
+    database.session.add(self)
+    database.session.commit()
 
   def save(self):
     database.session.add(self)

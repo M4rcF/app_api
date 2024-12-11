@@ -17,23 +17,28 @@ def polls_permitted_params():
   polls_args = reqparse.RequestParser()
   polls_args.add_argument('title', type=str, required=True, help="The field 'title' not can be blank")
   polls_args.add_argument('description', type=str, required=True, help="The field 'description' not can be blank")
-  polls_args.add_argument('expires_at', type=str, required=False)
-  polls_args.add_argument('poll_options', type=dict, action="append", required=False)
+  polls_args.add_argument('expires_at', type=str, required=True)
+  polls_args.add_argument('poll_options', type=dict, action="append", required=True)
 
   return polls_args.parse_args()
 
 def format_date(date):
-  return datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
+  if date:
+    return datetime.strptime(date, '%Y-%m-%d').date()
+
+  return None
 class PollsController(Resource):
   @jwt_required()
   def get(self, poll_id=None):
+    current_user = get_current_user()
+
     if poll_id is None:
       polls = Poll.get_all()
-      return { 'polls': [poll.to_json() for poll in polls] }, 200
+      return { 'polls': [poll.to_json(current_user) for poll in polls] }, 200
     
     poll = Poll.find_by_id(poll_id)
     if poll:
-      return poll.to_json(), 200
+      return poll.to_json(current_user), 200
     
     return { 'message': 'Poll not found' }, 400
 
@@ -56,7 +61,7 @@ class PollsController(Resource):
     except Exception as e:
       return { 'message': f'An error ocurred trying to create poll_option: {str(e)}' }, 500
     
-    return poll.to_json(), 201
+    return poll.to_json(current_user), 201
   
   @jwt_required()
   def put(self, poll_id):
@@ -67,11 +72,11 @@ class PollsController(Resource):
       poll = Poll.find_by_id(poll_id)
 
       if current_user and (poll.user_id == current_user.id or current_user.is_admin):
-        poll.update(updated_polls_args['title'], updated_polls_args['description'], format_date(updated_polls_args['expires_at']))
+        poll.update(updated_polls_args['title'], updated_polls_args['description'], format_date(updated_polls_args['expires_at']), updated_polls_args['poll_options'])
         return { "message": "Poll updated" }, 200
 
       return {"message": "Access denied. Only administrators can access."}, 403
-    except:
+    except Exception as e:
       return { 'message': f'An error ocurred trying to update poll: {str(e)}' }, 500
 
   @jwt_required()

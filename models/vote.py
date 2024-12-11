@@ -52,7 +52,7 @@ class Vote(database.Model):
     return None
   
   @classmethod
-  def find_by_poll_option_id(cls, poll_id, poll_option_id,current_user_id):
+  def find_by_poll_option_id(cls, poll_id, poll_option_id, current_user_id):
     vote = cls.query.filter_by(poll_id=poll_id, poll_option_id=poll_option_id, user_id=current_user_id).first()
     if vote:
       return vote

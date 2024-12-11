@@ -27,6 +27,15 @@ class User(database.Model):
       'individual': self.individual.to_json()
     }
   
+  def update(self, email, is_admin, name, cpf, cellphone):
+    self.email = email
+    self.is_admin = is_admin
+
+    self.individual.update(name, cpf, cellphone)
+
+    database.session.add(self)
+    database.session.commit()
+  
   @classmethod
   def get_all(cls):
     return cls.query.all()

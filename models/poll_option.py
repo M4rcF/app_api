@@ -1,3 +1,4 @@
+from models.vote import Vote
 from sql_alchemy import database
 
 class PollOption(database.Model):
@@ -16,11 +17,17 @@ class PollOption(database.Model):
     self.text = text
     self.poll_id = poll_id
 
-  def to_json(self):
+  def to_json(self, current_user):
+    voted = False
+    vote = Vote.find_by_poll_option_id(self.poll_id, self.id, current_user.id)
+    if vote:
+      voted = True
+
     return {
       'id': self.id,
       'text': self.text,
-      'votes_count': len(self.votes)
+      'votes_count': len(self.votes),
+      'voted': voted,
     }
   
   def save(self):
@@ -28,6 +35,8 @@ class PollOption(database.Model):
     database.session.commit()
 
   def delete(self):
+    [vote.delete() for vote in self.votes]
+
     database.session.delete(self)
     database.session.commit()
 
