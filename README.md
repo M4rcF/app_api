@@ -17,7 +17,7 @@ Um sistema de enquetes desenvolvido em Python, utilizando Flask, Flask-RESTful, 
 ### Pré-requisitos
 - **Python** 3.9 ou superior.
 - **pip** (gerenciador de pacotes Python).
-- **virtualenv** (para criar ambientes virtuais Python).
+- **python3-venv** (para criar ambientes virtuais Python).
 
 ### Etapas de instalação
 
