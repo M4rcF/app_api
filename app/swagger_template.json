@@ -1,0 +1,379 @@
+{
+  "info": {
+    "title": "API - Enquetes",
+    "description": "Documentação da API",
+    "version": "1.0.0"
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Insira o token com `Bearer ` prefixo, e.g. \"Bearer abcde12345\"."
+    }
+  },
+  "paths": {
+    "/api/polls": {
+      "get": {
+        "summary": "Listar enquetes (Necessário autenticação)",
+        "description": "Lista todas as enquetes do banco",
+        "responses": {
+          "200": {
+            "description": "Lista retornada com sucesso"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      },
+      "post": {
+        "summary": "Criar enquetes (Necessário autenticação)",
+        "description": "Criação de enquetes",
+        "parameters": [
+          {
+            "name": "poll_data",
+            "in": "body",
+            "required": true,
+            "description": "Dados da enquete",
+            "schema": { "$ref": "#/components/schemas/poll" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Enquete criada com sucesso"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      }
+    },
+    "/api/polls/{poll_id}": {
+      "put": {
+        "summary": "Atualizar enquete (Necessário autenticação)",
+        "description": "Atualiza enquete e remove votos relacionados",
+        "parameters": [
+          {
+            "name": "poll_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da enquete",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "poll_data",
+            "in": "body",
+            "required": true,
+            "description": "Dados da enquete",
+            "schema": { "$ref": "#/components/schemas/poll" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enquete atualizada"
+          },
+          "400": {
+            "description": "Enquete não encontrada"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          },
+          "500": {
+            "description": "Erro inesperado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      },
+      "delete": {
+        "summary": "Deletar enquete (Necessário autenticação)",
+        "description": "Remove registro de enquete, opções relaciondas e votos relacionados do sistema.",
+        "parameters": [
+          {
+            "name": "poll_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da enquete",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enquete deletada"
+          },
+          "400": {
+            "description": "Enquete não encontrada"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          },
+          "500": {
+            "description": "Erro inesperado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      }
+    },
+    "/api/login": {
+      "post": {
+        "summary": "Realizar login",
+        "description": "Autenticação de usuário para execução dos outros endpoints",
+        "parameters": [
+          {
+            "name": "login_data",
+            "in": "body",
+            "required": true,
+            "description": "Dados de login",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string",
+                  "format": "email",
+                  "description": "Endereço de e-mail do usuário"
+                },
+                "password": {
+                  "type": "string",
+                  "description": "Senha do usuário"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Autenticação realizada com sucesso"
+          },
+          "401": {
+            "description": "Email ou senha incorreta"
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "summary": "Realizar logout (Necessário autenticação)",
+        "description": "Encerra a sessão atual do usuário, invalidando o token de acesso.",
+        "responses": {
+          "201": {
+            "description": "Logout realizado com sucesso"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      }
+    },
+    "/api/sign_up": {
+      "post": {
+        "summary": "Cadastrar usuário",
+        "description": "Criação de usuário",
+        "parameters": [
+          {
+            "name": "user_data",
+            "in": "body",
+            "required": true,
+            "description": "Dados do usuário",
+            "schema": { "$ref": "#/components/schemas/user" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Usuário criado com sucesso"
+          }
+        }
+      }
+    },
+    "/api/votes": {
+      "get": {
+        "summary": "Listar todos os votos (Necessário autenticação)",
+        "description": "Lista todos os votos do sitema se o requisitante for administrador",
+        "responses": {
+          "200": {
+            "description": "Lista de votos retornada"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      }
+    },
+    "/api/polls/{poll_id}/poll_options/{poll_option_id}/votes": {
+      "post": {
+        "summary": "Votar na opção de enquete (Necessário autenticação)",
+        "description": "Vota na opção especificada",
+        "parameters": [
+          {
+            "name": "poll_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da enquete",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "poll_option_id",
+            "in": "path",
+            "required": true,
+            "description": "ID da opção da enquete",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Voto realizado com sucesso"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Listar todos os usuários (Necessário autenticação)",
+        "description": "Lista todos os usuários do sitema se o requisitante for administrador",
+        "responses": {
+          "200": {
+            "description": "Lista de usuários retornada"
+          },
+          "401": {
+            "description": "Usuário não autorizado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      }
+    },
+    "/api/users/{user_id}": {
+      "put": {
+        "summary": "Atualizar usuário (Necessário autenticação)",
+        "description": "Atualiza dados de um usuário específico e desloga se for o mesmo usuário",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "description": "ID do usuário",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "user_data",
+            "in": "body",
+            "required": true,
+            "description": "Dados do usuário",
+            "schema": { "$ref": "#/components/schemas/user" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado com sucesso"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          }
+        },
+        "security": [
+          {"Bearer": []}
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "user": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Endereço de e-mail do usuário"
+          },
+          "password": {
+            "type": "string",
+            "description": "Senha do usuário",
+            "required": false
+          },
+          "is_admin": {
+            "type": "boolean",
+            "description": "Permissão de administrador"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome do individual"
+          },
+          "cpf": {
+            "type": "string",
+            "description": "Documento de identificação do individual"
+          },
+          "cellphone": {
+            "type": "string",
+            "nullable": true,
+            "description": "Telefone do individual"
+          }
+        }
+      },
+      "poll": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Título da enquete"
+          },
+          "description": {
+            "type": "string",
+            "description": "Descrição"
+          },
+          "expires_at": {
+            "type": "string",
+            "description": "Data de expiração da enquete"
+          },
+          "poll_options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "description": "Texto da opção"
+                }
+              },
+              "required": ["text"]
+            },
+            "minItems": 1,
+            "maxItems": 4,
+            "description": "Lista de opções para a enquete (de 1 a 4 opções)"
+          }
+        }
+      }
+    }
+  }
+}

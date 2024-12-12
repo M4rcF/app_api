@@ -9,7 +9,6 @@ def signup_permitted_params():
   signup_args = reqparse.RequestParser()
   signup_args.add_argument('email', type=str, required=True, help="The field 'email' not can be blank")
   signup_args.add_argument('password', type=str, required=True, help="The field 'password' not can be blank")
-  signup_args.add_argument('is_admin', type=bool, default=False)
   signup_args.add_argument('name', type=str, required=True, help="The field 'name' not can be blank")
   signup_args.add_argument('cpf', type=str, required=True, help="The field 'cpf' not can be blank")
   signup_args.add_argument('cellphone', type=str, default="")
@@ -30,7 +29,7 @@ class SignUpController(Resource):
     individual = Individual(data['name'], data['cpf'], data['cellphone'])
     individual.save()
 
-    user = User(data['email'], data['password'], data['is_admin'], individual.to_json()['id'])
+    user = User(data['email'], data['password'], False, individual.to_json()['id'])
     user.save()
 
     return { 'message': 'User created' }, 201

@@ -75,16 +75,21 @@ class PollsController(Resource):
         poll.update(updated_polls_args['title'], updated_polls_args['description'], format_date(updated_polls_args['expires_at']), updated_polls_args['poll_options'])
         return { "message": "Poll updated" }, 200
 
-      return {"message": "Access denied. Only administrators can access."}, 403
+      return { 'message': 'Poll not found' }, 400
     except Exception as e:
       return { 'message': f'An error ocurred trying to update poll: {str(e)}' }, 500
 
   @jwt_required()
   def delete(self, poll_id):
-    poll = Poll.find_by_id(poll_id)
-    if poll:
-      poll.delete()
+    current_user = get_current_user()
 
-      return { 'message': 'Poll deleted' }, 200
+    try:
+      poll = Poll.find_by_id(poll_id)
+      if poll and current_user and (poll.user_id == current_user.id or current_user.is_admin):
+        poll.delete()
+
+        return { 'message': 'Poll deleted' }, 200
     
-    return { 'message': 'Poll not found' }, 400
+      return { 'message': 'Poll not found' }, 400
+    except Exception as e:
+      return { 'message': f'An error ocurred trying to delete poll: {str(e)}' }, 500
